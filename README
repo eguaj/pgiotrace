@@ -1,0 +1,22 @@
+Trace I/O syscalls (read, write and _lseek), of a Postgresql backend,
+and print their associated tables or indexes.
+
+Usage:
+
+  $ perl pgiotrace.pl --pid <pg_backend_pid> --dsn <pb_data_source_name> [--username <username> --password <password>]
+
+Example :
+
+  $ perl pgiotrace.pl --pid 29035 --dns "service=my_database"
+  Attaching to backend with PID '29035'... Done.
+  ...
+  read(public.my_table) = 8192 (0.000048)
+  _llseek(public.my_table) = 0 (0.000092)
+  read(public.my_table) = 8192 (0.000048)
+  _llseek(public.my_table) = 0 (0.000095)
+  read(public.my_table) = 8192 (0.000048)
+  _llseek(public.my_table) = 0 (0.000095)
+  read(public.my_table) = 8192 (0.000048)
+  _llseek(public.my_table) = 0 (0.000088)
+  read(public.my_table) = 8192 (0.000048)
+  ^C
