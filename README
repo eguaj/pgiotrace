@@ -3,7 +3,7 @@ and print their associated tables or indexes.
 
 Usage:
 
-  $ perl pgiotrace.pl --pid <pg_backend_pid> --dsn <pb_data_source_name> [--username <username> --password <password>]
+  $ perl pgiotrace.pl --pid <pg_backend_pid> --dsn <pg_data_source_name> [--username <username> --password <password>]
 
 Example :
 
