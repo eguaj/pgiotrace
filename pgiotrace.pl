@@ -83,8 +83,9 @@ foreach my $fd (keys %openFdMap) {
 print STDERR "\n";
 
 my $line;
-my ($time, $syscall, $fd, $args, $exitcode);
-my ($last_syscall, $last_fd);
+my ($time, $syscall, $args, $exitcode);
+my $last_syscall = '';
+my $last_fd = '';
 while( $line = <STRACE> ) {
   if( ! ($line =~ m/^
 		    \s*
@@ -103,7 +104,6 @@ while( $line = <STRACE> ) {
   }
 
   next if( not exists $openFdMap{$+{'fd'}} );
-  $fd = ;
 
   if( $parms{'coalesce'} ) {
     if( $+{'syscall'} eq $last_syscall && $+{'fd'} eq $last_fd ) {
