@@ -10,7 +10,14 @@ use File::Basename qw(basename);
 my @TRACE = qw(read write _llseek);
 
 sub usage() {
-  print STDERR "Usage: $0 --pid <pg_backend_pid> --dsn <pg_data_source_name> [--user <username> --password <password>]\n";
+  print STDERR "Usage: $0 --pid <pg_backend_pid> --dsn <pg_data_source_name> [--user <username> [--password <password>]] [-c|--coalesce]\n";
+  print STDERR "\n";
+  print STDERR "  --pid <pid>           The pid of the pg backend to inspect.\n";
+  print STDERR "  --dsn <DSN>           The connection DSN of the database.\n";
+  print STDERR "  --username <username> The username of the connection.\n";
+  print STDERR "  --password <password> The password of the connection.\n";
+  print STDERR "  -c|--coalesce         Coalesce repeated syscalls on the same fd.\n";
+  print STDERR "\n";
 }
 
 select STDERR; $|=1;
@@ -20,7 +27,8 @@ my %parms = (
 	     'pid' => '',
 	     'dsn' => '',
 	     'user' => '',
-	     'pass' => ''
+	     'pass' => '',
+	     'coalesce' => 0
 	    );
 
 my $ret = GetOptions(
@@ -28,8 +36,12 @@ my $ret = GetOptions(
 		     'dsn=s' => \$parms{'dsn'},
 		     'username=s' => \$parms{'username'},
 		     'password=s' => \$parms{'password'},
+		     'c|coalesce' => \$parms{'coalesce'}
 		     );
 if( ! $ret ) {
+  die usage();
+}
+if( $parms{'pid'} eq '' || $parms{'dsn'} eq '' ) {
   die usage();
 }
 
@@ -72,6 +84,7 @@ print STDERR "\n";
 
 my $line;
 my ($time, $syscall, $fd, $args, $exitcode);
+my ($last_syscall, $last_fd);
 while( $line = <STRACE> ) {
   if( ! ($line =~ m/^
 		    \s*
@@ -89,9 +102,18 @@ while( $line = <STRACE> ) {
     next;
   }
 
-  if( exists $openFdMap{$+{'fd'}} ) {
-    $fd = $openFdMap{$+{'fd'}};
-    print sprintf("%s(%s) = %s (%s)\n", $+{'syscall'}, $fd, $+{'exitcode'}, $+{'time'});
+  next if( not exists $openFdMap{$+{'fd'}} );
+  $fd = ;
+
+  if( $parms{'coalesce'} ) {
+    if( $+{'syscall'} eq $last_syscall && $+{'fd'} eq $last_fd ) {
+      print ".";
+    } else {
+      print sprintf("\n%s(%s) = %s ", $+{'syscall'}, $openFdMap{$+{'fd'}}, $+{'exitcode'});
+      ($last_syscall, $last_fd) = ($+{'syscall'}, $+{'fd'});
+    }
+  } else {
+    print sprintf("\n%s(%s) = %s (%s)", $+{'syscall'}, $openFdMap{$+{'fd'}}, $+{'exitcode'}, $+{'time'});
   }
 }
 close(STRACE);

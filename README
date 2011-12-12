@@ -7,7 +7,7 @@ Usage:
 
 Example :
 
-  $ perl pgiotrace.pl --pid 29035 --dns "service=my_database"
+  $ perl pgiotrace.pl --pid 29035 --dsn "service=my_database"
   Attaching to backend with PID '29035'... Done.
   ...
   read(public.my_table) = 8192 (0.000048)
