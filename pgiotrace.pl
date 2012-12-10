@@ -7,7 +7,7 @@ use DBI;
 use DBD::Pg;
 use File::Basename qw(basename);
 
-my @TRACE = qw(read write _llseek);
+my @TRACE = qw(read write lseek lseek64 llseek _llseek);
 
 sub usage() {
   print STDERR "Usage: $0 --pid <pg_backend_pid> --dsn <pg_data_source_name> [--user <username> [--password <password>]] [-c|--coalesce]\n";
